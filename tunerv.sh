@@ -1,0 +1,15 @@
+accelerate launch -m pdb -c continue examples/brushnet/finetune_brushnet.py \
+--pretrained_model_name_or_path /lustre/scratch/client/vinai/users/ngannh9/data/brushnet_ckpt/realisticVisionV60B1_v51VAE \
+--output_dir runs/logs/finetune_brushnet \
+--train_data_type 'COCO,13k,hico' \
+--resolution 512 \
+--learning_rate 1e-5 \
+--train_batch_size 10 \
+--tracker_project_name brushnet \
+--report_to tensorboard \
+--resume_from_checkpoint latest \
+--validation_steps 300 \
+--checkpointing_steps 10000  \
+--validation_folder examples/brushnet/validation  \
+--brushnet_model_name_or_path /lustre/scratch/client/vinai/users/ngannh9/data/brushnet_ckpt/random_mask_brushnet_ckpt \
+--gradient_accumulation_steps 4

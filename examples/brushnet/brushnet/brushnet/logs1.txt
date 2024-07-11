@@ -1,0 +1,30 @@
+/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/huggingface_hub/file_download.py:1132: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:00, 19.35it/s]Loading pipeline components...:  57%|█████▋    | 4/7 [00:00<00:00,  9.67it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:00<00:00,  6.37it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00,  6.63it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00,  7.32it/s]
+  0%|          | 0/50 [00:00<?, ?it/s]  0%|          | 0/50 [01:06<?, ?it/s]
+Traceback (most recent call last):
+  File "test_sdxl.py", line 34, in <module>
+    outputs = pipeline_text2image(prompt=prompt, negative_prompt=negative_prompt, generator=generator).images
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/diffusers/pipelines/stable_diffusion_xl/pipeline_stable_diffusion_xl.py", line 1174, in __call__
+    noise_pred = self.unet(
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/diffusers/models/unets/unet_2d_condition.py", line 1227, in forward
+    sample, res_samples = downsample_block(hidden_states=sample, temb=emb)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/diffusers/models/unets/unet_2d_blocks.py", line 1382, in forward
+    hidden_states = resnet(hidden_states, temb)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/data/lavis_env/lib/python3.8/site-packages/diffusers/models/resnet.py", line 376, in forward
+    output_tensor = (input_tensor + hidden_states) / self.output_scale_factor
+RuntimeError: r.nvmlDeviceGetNvLinkRemoteDeviceType_ INTERNAL ASSERT FAILED at "../c10/cuda/driver_api.cpp":27, please report a bug to PyTorch. Can't find nvmlDeviceGetNvLinkRemoteDeviceType: /lib/x86_64-linux-gnu/libnvidia-ml.so.1: undefined symbol: nvmlDeviceGetNvLinkRemoteDeviceType

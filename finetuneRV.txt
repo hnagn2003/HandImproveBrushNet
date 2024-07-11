@@ -1,0 +1,62 @@
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `1`
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+07/03/2024 20:52:40 - INFO - __main__ - Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+
+Mixed precision type: no
+
+You are using a model of type clip_text_model to instantiate a model of type . This is not supported for all configurations of models and can yield errors.
+{'clip_sample_range', 'thresholding', 'sample_max_value', 'rescale_betas_zero_snr', 'variance_type', 'dynamic_thresholding_ratio'} was not found in config. Values will be initialized to default values.
+{'latents_std', 'latents_mean'} was not found in config. Values will be initialized to default values.
+07/03/2024 20:52:42 - INFO - __main__ - Initializing brushnet weights from unet
+07/03/2024 20:53:15 - INFO - __main__ - ***** Running training *****
+07/03/2024 20:53:15 - INFO - __main__ -   Num examples = 106303
+07/03/2024 20:53:15 - INFO - __main__ -   Num batches each epoch = 13287
+07/03/2024 20:53:15 - INFO - __main__ -   Num Epochs = 10000
+07/03/2024 20:53:15 - INFO - __main__ -   Instantaneous batch size per device = 8
+07/03/2024 20:53:15 - INFO - __main__ -   Total train batch size (w. parallel, distributed & accumulation) = 8
+07/03/2024 20:53:15 - INFO - __main__ -   Gradient Accumulation steps = 1
+07/03/2024 20:53:15 - INFO - __main__ -   Total optimization steps = 132870000
+using  ['COCO', '13k', 'hico']
+Checkpoint 'latest' does not exist. Starting a new training run.
+Steps:   0%|          | 0/132870000 [00:00<?, ?it/s]Steps:   0%|          | 1/132870000 [00:09<365354:03:18,  9.90s/it]07/03/2024 20:53:25 - INFO - __main__ - Running validation... 
+{'brushnet'} was not found in config. Values will be initialized to default values.
+
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s][ALoaded scheduler as PNDMScheduler from `scheduler` subfolder of /lustre/scratch/client/vinai/users/ngannh9/data/brushnet_ckpt/realisticVisionV60B1_v51VAE.
+/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/transformers/models/clip/feature_extraction_clip.py:28: FutureWarning: The class CLIPFeatureExtractor is deprecated and will be removed in version 5 of Transformers. Please use CLIPImageProcessor instead.
+  warnings.warn(
+Loaded feature_extractor as CLIPFeatureExtractor from `feature_extractor` subfolder of /lustre/scratch/client/vinai/users/ngannh9/data/brushnet_ckpt/realisticVisionV60B1_v51VAE.
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 347.91it/s]
+You have disabled the safety checker for <class 'diffusers.pipelines.brushnet.pipeline_brushnet.StableDiffusionBrushNetPipeline'> by passing `safety_checker=None`. Ensure that you abide to the conditions of the Stable Diffusion license and do not expose unfiltered results in services or applications open to the public. Both the diffusers team and Hugging Face strongly recommend to keep the safety filter enabled in all public facing circumstances, disabling it only for use-cases that involve analyzing network behavior or auditing its results. For more information, please have a look at https://github.com/huggingface/diffusers/pull/254 .
+{'solver_type', 'disable_corrector', 'thresholding', 'use_karras_sigmas', 'predict_x0', 'sample_max_value', 'lower_order_final', 'solver_order', 'dynamic_thresholding_ratio', 'solver_p'} was not found in config. Values will be initialized to default values.
+/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/torch/nn/modules/conv.py:456: UserWarning: Plan failed with a cudnnException: CUDNN_BACKEND_EXECUTION_PLAN_DESCRIPTOR: cudnnFinalize Descriptor Failed cudnn_status: CUDNN_STATUS_NOT_SUPPORTED (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:919.)
+  return F.conv2d(input, weight, bias, self.stride,
+Traceback (most recent call last):
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/BrushNet/examples/brushnet/finetune_brushnet.py", line 1155, in <module>
+    main(args)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/BrushNet/examples/brushnet/finetune_brushnet.py", line 1095, in main
+    image_logs = log_validation(
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/BrushNet/examples/brushnet/finetune_brushnet.py", line 169, in log_validation
+    formatted_images = np.stack(formatted_images)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/numpy/core/shape_base.py", line 449, in stack
+    raise ValueError('all input arrays must have the same shape')
+ValueError: all input arrays must have the same shape
+Steps:   0%|          | 1/132870000 [01:08<2541101:58:48, 68.85s/it]
+Traceback (most recent call last):
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/env/bin/accelerate", line 8, in <module>
+    sys.exit(main())
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/accelerate/commands/accelerate_cli.py", line 48, in main
+    args.func(args)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/accelerate/commands/launch.py", line 1097, in launch_command
+    simple_launcher(args)
+  File "/lustre/scratch/client/vinai/users/ngannh9/hand/env/lib/python3.9/site-packages/accelerate/commands/launch.py", line 703, in simple_launcher
+    raise subprocess.CalledProcessError(returncode=process.returncode, cmd=cmd)
+subprocess.CalledProcessError: Command '['/lustre/scratch/client/vinai/users/ngannh9/hand/env/bin/python', 'examples/brushnet/finetune_brushnet.py', '--pretrained_model_name_or_path', '/lustre/scratch/client/vinai/users/ngannh9/data/brushnet_ckpt/realisticVisionV60B1_v51VAE', '--output_dir', 'runs/logs/finetune_brushnet', '--train_data_type', 'COCO,13k,hico', '--resolution', '512', '--learning_rate', '1e-5', '--train_batch_size', '8', '--tracker_project_name', 'brushnet', '--report_to', 'tensorboard', '--resume_from_checkpoint', 'latest', '--validation_steps', '1', '--checkpointing_steps', '10000', '--validation_folder', 'examples/brushnet/validation']' returned non-zero exit status 1.
