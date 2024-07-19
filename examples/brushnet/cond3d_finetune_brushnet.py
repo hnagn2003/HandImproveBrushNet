@@ -47,7 +47,78 @@ from diffusers.utils.hub_utils import load_or_create_model_card, populate_model_
 from diffusers.utils.import_utils import is_xformers_available
 from diffusers.utils.torch_utils import is_compiled_module
 
+class BrushNet3DModel(BrushNetModel):
+    def from_brushnet2d(
+        cls,
+        brushnet2d: UNet2DConditionModel,
+        brushnet_conditioning_channel_order: str = "rgb",
+        conditioning_embedding_out_channels: Optional[Tuple[int, ...]] = (16, 32, 96, 256),
+        load_weights_from_brushnet2d: bool = True,
+        conditioning_channels: int = 10,
+    ):
+        transformer_layers_per_block = (
+            brushnet2d.config.transformer_layers_per_block if "transformer_layers_per_block" in brushnet2d.config else 1
+        )
+        encoder_hid_dim = brushnet2d.config.encoder_hid_dim if "encoder_hid_dim" in brushnet2d.config else None
+        encoder_hid_dim_type = brushnet2d.config.encoder_hid_dim_type if "encoder_hid_dim_type" in brushnet2d.config else None
+        addition_embed_type = brushnet2d.config.addition_embed_type if "addition_embed_type" in brushnet2d.config else None
+        addition_time_embed_dim = (
+            brushnet2d.config.addition_time_embed_dim if "addition_time_embed_dim" in brushnet2d.config else None
+        )
 
+        brushnet3D = cls(
+            in_channels=brushnet2d.config.in_channels,
+            conditioning_channels=conditioning_channels,
+            flip_sin_to_cos=brushnet2d.config.flip_sin_to_cos,
+            freq_shift=brushnet2d.config.freq_shift,
+            down_block_types=["DownBlock2D" for block_name in brushnet2d.config.down_block_types],
+            mid_block_type='MidBlock2D',
+            up_block_types=["UpBlock2D" for block_name in brushnet2d.config.down_block_types],
+            only_cross_attention=brushnet2d.config.only_cross_attention,
+            block_out_channels=brushnet2d.config.block_out_channels,
+            layers_per_block=brushnet2d.config.layers_per_block,
+            downsample_padding=brushnet2d.config.downsample_padding,
+            mid_block_scale_factor=brushnet2d.config.mid_block_scale_factor,
+            act_fn=brushnet2d.config.act_fn,
+            norm_num_groups=brushnet2d.config.norm_num_groups,
+            norm_eps=brushnet2d.config.norm_eps,
+            cross_attention_dim=brushnet2d.config.cross_attention_dim,
+            transformer_layers_per_block=transformer_layers_per_block,
+            encoder_hid_dim=encoder_hid_dim,
+            encoder_hid_dim_type=encoder_hid_dim_type,
+            attention_head_dim=brushnet2d.config.attention_head_dim,
+            num_attention_heads=brushnet2d.config.num_attention_heads,
+            use_linear_projection=brushnet2d.config.use_linear_projection,
+            class_embed_type=brushnet2d.config.class_embed_type,
+            addition_embed_type=addition_embed_type,
+            addition_time_embed_dim=addition_time_embed_dim,
+            num_class_embeds=brushnet2d.config.num_class_embeds,
+            upcast_attention=brushnet2d.config.upcast_attention,
+            resnet_time_scale_shift=brushnet2d.config.resnet_time_scale_shift,
+            projection_class_embeddings_input_dim=brushnet2d.config.projection_class_embeddings_input_dim,
+            brushnet_conditioning_channel_order=brushnet_conditioning_channel_order,
+            conditioning_embedding_out_channels=conditioning_embedding_out_channels,
+        )
+
+        if load_weights_from_brushnet2d:
+            conv_in_condition_weight=torch.zeros_like(brushnet3D.conv_in_condition.weight)
+            conv_in_condition_weight[:,:4,...]=brushnet2d.conv_in_condition.weight
+            conv_in_condition_weight[:,4:8,...]=brushnet2d.conv_in_condition.weight
+            brushnet3D.conv_in_condition.weight=torch.nn.Parameter(conv_in_condition_weight)
+            brushnet3D.conv_in_condition.bias=brushnet2d.conv_in_condition.bias
+
+            brushnet3D.time_proj.load_state_dict(brushnet2d.time_proj.state_dict())
+            brushnet3D.time_embedding.load_state_dict(brushnet2d.time_embedding.state_dict())
+
+            if brushnet3D.class_embedding:
+                brushnet3D.class_embedding.load_state_dict(brushnet2d.class_embedding.state_dict())
+
+            brushnet3D.down_blocks.load_state_dict(brushnet2d.down_blocks.state_dict(),strict=False)
+            brushnet3D.mid_block.load_state_dict(brushnet2d.mid_block.state_dict(),strict=False)
+            brushnet3D.up_blocks.load_state_dict(brushnet2d.up_blocks.state_dict(),strict=False)
+
+        return brushnet3D
+        
 if is_wandb_available():
     import wandb
 
@@ -271,6 +342,9 @@ These are brushnet weights trained on {base_model} with new type of conditioning
 
     model_card.save(os.path.join(repo_folder, "README.md"))
 
+def from_pretrained_2D_brushnet(brushnet_model_name_or_path):
+    brushnet2d = BrushNet3DModel.from_pretrained(brushnet_model_name_or_path)
+    
 
 def parse_args(input_args=None):
     parser = argparse.ArgumentParser(description="Simple example of a BrushNet training script.")
@@ -620,7 +694,22 @@ def parse_args(input_args=None):
             "Training BrushNet with random mask"
         ),
     )
-
+    parser.add_argument(
+        "--num_bins",
+        type=int,
+        default=1000,
+        help=(
+            "Training BrushNet with random mask"
+        ),
+    )    
+    parser.add_argument(
+        "--max_hands",
+        type=int,
+        default=6,
+        help=(
+            "Training BrushNet with random mask"
+        ),
+    )
     if input_args is not None:
         args = parser.parse_args(input_args)
     else:
@@ -715,12 +804,16 @@ def main(args):
         args.pretrained_model_name_or_path, subfolder="unet", revision=args.revision, variant=args.variant
     )
 
+    # if args.brushnet_model_name_or_path:
+    #     logger.info("Loading existing brushnet weights")
+    #     brushnet = BrushNetModel.from_pretrained(args.brushnet_model_name_or_path)
+    # else:
+    #     logger.info("Initializing brushnet weights from unet")
+    #     brushnet = BrushNetModel.from_unet(unet)
+    
     if args.brushnet_model_name_or_path:
-        logger.info("Loading existing brushnet weights")
-        brushnet = BrushNetModel.from_pretrained(args.brushnet_model_name_or_path)
-    else:
-        logger.info("Initializing brushnet weights from unet")
-        brushnet = BrushNetModel.from_unet(unet)
+            logger.info("Initializing brushnet weights from existing brushnet weights")
+            brushnet = BrushNetModel.from_pretrained_2D_brushnet(args.brushnet_model_name_or_path)
 
     # Taken from [Sayak Paul's Diffusers PR #6511](https://github.com/huggingface/diffusers/pull/6511/files)
     def unwrap_model(model):
